@@ -176,7 +176,14 @@ with ui.layout_columns():
                 return render.DataTable(filtered_df()[cols], filters=True)
             else:
                 return render.DataGrid(filtered_df()[cols], filters=True)
-        
+    with ui.card(full_screen=True):
+        ui.card_header("Penguin Correlation Table")
+        @render.plot
+        def correlation_heatmap():
+            cols = ["bill_length_mm", "bill_depth_mm", "body_mass_g"]
+            corr = filtered_df()[cols].corr()
+            return sns.heatmap(corr, annot=True, cmap="coolwarm", vmin=-1, vmax=1)
+
 
 ui.include_css(app_dir / "styles.css")
 
