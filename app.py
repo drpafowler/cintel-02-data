@@ -64,16 +64,25 @@ with ui.layout_column_wrap(fill=False):
     
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Bill length and depth")
+        ui.card_header("Bill length and depth scatterplot or histogram")
 
         @render.plot
         def length_depth():
-            return sns.scatterplot(
-                data=filtered_df(),
-                x=input.xaxis(),
-                y=input.yaxis(),
-                hue="species",
-            )
+            if input.plot() == "Scatterplot":
+                return sns.scatterplot(
+                    data=filtered_df(),
+                    x=input.xaxis(),
+                    y=input.yaxis(),
+                    hue="species",
+                )
+            elif input.plot() == "Histogram":
+                return sns.histplot(
+                    data=filtered_df(),
+                    x=input.xaxis(),
+                    bins=input.bins(),
+                    hue="species",
+                    multiple="stack",
+                )
 
     with ui.card(full_screen=True):
         ui.card_header("Penguin data")
