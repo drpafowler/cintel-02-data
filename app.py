@@ -3,19 +3,24 @@ from faicons import icon_svg
 
 # Import data from shared.py
 from shared import app_dir, df
-
+import plotly.express as px
 from shiny import reactive
 from shiny.express import input, render, ui
+from shinywidgets import render_widget  
+
 
 ui.page_opts(title=ui.h1("Philip's Penguins", style="text-align: center;"), fillable=True)
 
 
-with ui.sidebar(title=ui.h2("Controls")):
+with ui.sidebar(title=ui.h2("Seaborn Controls")):
     ui.input_select("plot", "Plot Type", ["Scatterplot", "Histogram"])
     ui.input_select("xaxis", "X-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_length_mm")
     ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
     ui.input_slider("bins", "Number of bins", 5, 50, 20)
     ui.input_slider("mass", "Mass", 2000, 6000, 6000)
+
+    ui.h3("Plotly Controls")
+    ui.input_numeric("plotly_bins", "Number of bins", 20, min=5, max=50)
 
     ui.h3("Filters")
     ui.input_checkbox_group(
@@ -71,7 +76,7 @@ with ui.layout_column_wrap(fill=False):
 
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Penguin data Visualisation")
+        ui.card_header("Seaborn Penguin Data Visualisation")
 
         @render.plot
         def length_depth():
@@ -106,6 +111,23 @@ with ui.layout_columns():
             ]
             return render.DataGrid(filtered_df()[cols], filters=True)
 
+with ui.layout_columns():
+    with ui.card(full_screen=True):
+        ui.card_header("Plotly Histogram")
+
+        @render_widget
+        def plotly_plot():
+            fig = px.histogram(
+            filtered_df(),
+            x=input.xaxis(),
+            color="species",
+            marginal="box",
+            title="Histogram of Penguin Data",
+            nbins=input.plotly_bins()
+            )
+            return fig
+
+        
 
 ui.include_css(app_dir / "styles.css")
 
