@@ -7,15 +7,17 @@ from shared import app_dir, df
 from shiny import reactive
 from shiny.express import input, render, ui
 
-ui.page_opts(title=ui.h1("Philip's Penguins"), fillable=True)
+ui.page_opts(title=ui.h1("Philip's Penguins", style="text-align: center;"), fillable=True)
 
 
-with ui.sidebar(title=ui.h2("Filter controls")):
-    ui.input_select("plot", "Plot", ["Scatterplot", "Histogram"])
-    ui.input_select("xaxis", "X-axis", ["bill_length_mm", "bill_depth_mm"], selected="bill_length_mm")
-    ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm"], selected="bill_depth_mm")
+with ui.sidebar(title=ui.h2("Controls")):
+    ui.input_select("plot", "Plot Type", ["Scatterplot", "Histogram"])
+    ui.input_select("xaxis", "X-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_length_mm")
+    ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
     ui.input_slider("bins", "Number of bins", 5, 50, 20)
     ui.input_slider("mass", "Mass", 2000, 6000, 6000)
+
+    ui.h3("Filters")
     ui.input_checkbox_group(
         "sex",
         "Sex",
@@ -27,6 +29,12 @@ with ui.sidebar(title=ui.h2("Filter controls")):
         "Species",
         ["Adelie", "Gentoo", "Chinstrap"],
         selected=["Adelie", "Gentoo", "Chinstrap"],
+    )
+    ui.input_checkbox_group(
+        "island",
+        "Island",
+        ["Biscoe", "Dream", "Torgersen"],
+        selected=["Biscoe", "Dream", "Torgersen"],
     )
     ui.a("GitHub", href="https://github.com/drpafowler/cintel-02-data", target="_blank")
 
@@ -90,5 +98,6 @@ ui.include_css(app_dir / "styles.css")
 def filtered_df():
     filt_df = df[df["species"].isin(input.species())]
     filt_df = filt_df[filt_df["sex"].isin(input.sex())]
+    filt_df = filt_df[filt_df["island"].isin(input.island())]
     filt_df = filt_df.loc[filt_df["body_mass_g"] <= input.mass()]
     return filt_df
