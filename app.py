@@ -5,6 +5,12 @@ from palmerpenguins import load_penguins
 ui.page_opts(title="Philip's Penguins", fillable=True)
 
 with ui.sidebar():
+
+    ui.input_selectize(
+        "plot_type", "Select plot type",
+        ["Histogram", "Scatterplot"]
+    )
+
     ui.input_selectize(
         "xvar", "Select x-axis variable",
         ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"]
@@ -15,10 +21,7 @@ with ui.sidebar():
         "yvar", "Select scatterplot y-axis variable",
         ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"]
     )
-    ui.input_selectize(
-        "plot_type", "Select plot type",
-        ["Histogram", "Scatterplot"]
-    )
+
     ui.input_selectize(
         "color_by", "Color scatterplot by",
         ["off", "species", "sex", "island"]
