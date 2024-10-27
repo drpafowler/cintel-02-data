@@ -1,5 +1,4 @@
 import seaborn as sns
-from faicons import icon_svg
 
 # Import data from shared.py
 from shared import app_dir, df
@@ -116,7 +115,7 @@ with ui.layout_columns():
 
     with ui.card(full_screen=True):
         ui.card_header("Penguin data")
-
+        ui.input_switch("show_table", "Switch on to show a data table", False)
         @render.data_frame
         def summary_statistics():
             cols = [
@@ -127,11 +126,14 @@ with ui.layout_columns():
                 "body_mass_g",
                 "sex",
             ]
-            return render.DataGrid(filtered_df()[cols], filters=True)
+            if input.show_table():
+                return render.DataTable(filtered_df()[cols], filters=True)
+            else:
+                return render.DataGrid(filtered_df()[cols], filters=True)
 
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Plotly Histogram")
+        ui.card_header("Plotly Penguin Data Visualisation")
 
         @render_widget
         def plotly_plot():
