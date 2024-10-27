@@ -1,48 +1,93 @@
+import seaborn as sns
+from faicons import icon_svg
+
+# Import data from shared.py
+from shared import app_dir, df
+
+from shiny import reactive
 from shiny.express import input, render, ui
-from shinywidgets import render_plotly
-from palmerpenguins import load_penguins
 
-ui.page_opts(title="Philip's Penguins", fillable=True)
+ui.page_opts(title=ui.h1("Philip's Penguins"), fillable=True)
 
-with ui.sidebar():
 
-    ui.h3("Penguin Data Visualization")
-
-    ui.input_selectize(
-        "plot_type", "Select plot type",
-        ["Histogram", "Scatterplot"]
+with ui.sidebar(title=ui.h2("Filter controls")):
+    ui.input_select("plot", "Plot", ["Scatterplot", "Histogram"])
+    ui.input_select("xaxis", "X-axis", ["bill_length_mm", "bill_depth_mm"], selected="bill_length_mm")
+    ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm"], selected="bill_depth_mm")
+    ui.input_slider("bins", "Number of bins", 5, 50, 20)
+    ui.input_slider("mass", "Mass", 2000, 6000, 6000)
+    ui.input_checkbox_group(
+        "sex",
+        "Sex",
+        ["Male", "Female"],
+        selected=["Male", "Female"],
+    )
+    ui.input_checkbox_group(
+        "species",
+        "Species",
+        ["Adelie", "Gentoo", "Chinstrap"],
+        selected=["Adelie", "Gentoo", "Chinstrap"],
     )
 
-    ui.input_selectize(
-        "xvar", "Select x-axis variable for all graph types",
-        ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"]
-    )
-    ui.input_numeric("bins", "Number of histogram bins", 30)
-    
-    ui.input_selectize(
-        "yvar", "Select scatterplot y-axis variable",
-        ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"],
-        selected="bill_depth_mm"
-    )
 
-    ui.input_selectize(
-        "color_by", "Color scatterplot by",
-        ["off", "species", "sex", "island"],
-        selected="species"
-    )
+with ui.layout_column_wrap(fill=False):
+    with ui.value_box(showcase=icon_svg("earlybirds")):
+        "Number of penguins"
 
-with ui.card(full_screen=True):
-    @render_plotly
-    def plot():
-        import plotly.express as px
-        penguins = load_penguins()
-        plot_type = input.plot_type()
-        
-        if plot_type == "Histogram":
-            return px.histogram(penguins, x=input.xvar(), nbins=input.bins())
-        elif plot_type == "Scatterplot":
-            color_by = input.color_by()
-            if color_by == "off":
-                return px.scatter(penguins, x=input.xvar(), y=input.yvar())
-            else:
-                return px.scatter(penguins, x=input.xvar(), y=input.yvar(), color=color_by)
+        @render.text
+        def count():
+            return filtered_df().shape[0]
+
+    with ui.value_box(showcase=icon_svg("ruler-horizontal")):
+        "Average bill length"
+
+        @render.text
+        def bill_length():
+            return f"{filtered_df()['bill_length_mm'].mean():.1f} mm"
+
+    with ui.value_box(showcase=icon_svg("ruler-vertical")):
+        "Average bill depth"
+
+        @render.text
+        def bill_depth():
+            return f"{filtered_df()['bill_depth_mm'].mean():.1f} mm"
+
+
+with ui.layout_columns():
+    with ui.card(full_screen=True):
+        ui.card_header("Bill length and depth")
+
+        @render.plot
+        def length_depth():
+            return sns.scatterplot(
+                data=filtered_df(),
+                x=input.xaxis(),
+                y=input.yaxis(),
+                hue="species",
+            )
+
+    with ui.card(full_screen=True):
+        ui.card_header("Penguin data")
+
+        @render.data_frame
+        def summary_statistics():
+            cols = [
+                "species",
+                "island",
+                "bill_length_mm",
+                "bill_depth_mm",
+                "body_mass_g",
+                "sex",
+            ]
+            return render.DataGrid(filtered_df()[cols], filters=True)
+
+
+ui.include_css(app_dir / "styles.css")
+
+
+@reactive.calc
+def filtered_df():
+    filt_df = df[df["species"].isin(input.species())]
+    filt_df = filt_df[filt_df["sex"].isin(input.sex())]
+    filt_df = filt_df.loc[filt_df["body_mass_g"] <= input.mass()]
+    return filt_df
