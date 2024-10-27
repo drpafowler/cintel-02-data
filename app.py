@@ -41,30 +41,37 @@ with ui.sidebar(title=ui.h2("Controls")):
 
 
 with ui.layout_column_wrap(fill=False):
-    with ui.value_box(showcase=icon_svg("earlybirds")):
+    with ui.value_box():
         "Number of penguins"
 
         @render.text
         def count():
             return filtered_df().shape[0]
 
-    with ui.value_box(showcase=icon_svg("ruler-horizontal")):
+    with ui.value_box():
         "Average bill length"
 
         @render.text
         def bill_length():
             return f"{filtered_df()['bill_length_mm'].mean():.1f} mm"
 
-    with ui.value_box(showcase=icon_svg("ruler-vertical")):
+    with ui.value_box():
         "Average bill depth"
 
         @render.text
         def bill_depth():
             return f"{filtered_df()['bill_depth_mm'].mean():.1f} mm"
     
+    with ui.value_box():
+        "Average body mass"
+
+        @render.text
+        def body_mass():
+            return f"{filtered_df()['body_mass_g'].mean():.1f} g"
+
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Bill length and depth scatterplot or histogram")
+        ui.card_header("Penguin data Visualisation")
 
         @render.plot
         def length_depth():
