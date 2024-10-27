@@ -6,25 +6,29 @@ ui.page_opts(title="Philip's Penguins", fillable=True)
 
 with ui.sidebar():
 
+    ui.h3("Penguin Data Visualization")
+
     ui.input_selectize(
         "plot_type", "Select plot type",
         ["Histogram", "Scatterplot"]
     )
 
     ui.input_selectize(
-        "xvar", "Select x-axis variable",
+        "xvar", "Select x-axis variable for all graph types",
         ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"]
     )
     ui.input_numeric("bins", "Number of histogram bins", 30)
     
     ui.input_selectize(
         "yvar", "Select scatterplot y-axis variable",
-        ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"]
+        ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g", "year"],
+        selected="bill_depth_mm"
     )
 
     ui.input_selectize(
         "color_by", "Color scatterplot by",
-        ["off", "species", "sex", "island"]
+        ["off", "species", "sex", "island"],
+        selected="species"
     )
 
 with ui.card(full_screen=True):
