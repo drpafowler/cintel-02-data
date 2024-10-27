@@ -28,6 +28,8 @@ with ui.sidebar(title=ui.h2("Filter controls")):
         ["Adelie", "Gentoo", "Chinstrap"],
         selected=["Adelie", "Gentoo", "Chinstrap"],
     )
+    ui.a("GitHub", href="https://github.com/drpafowler/cintel-02-data", target="_blank")
+
 
 
 with ui.layout_column_wrap(fill=False):
@@ -51,8 +53,7 @@ with ui.layout_column_wrap(fill=False):
         @render.text
         def bill_depth():
             return f"{filtered_df()['bill_depth_mm'].mean():.1f} mm"
-
-
+    
 with ui.layout_columns():
     with ui.card(full_screen=True):
         ui.card_header("Bill length and depth")
