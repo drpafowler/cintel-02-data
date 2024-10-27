@@ -15,7 +15,7 @@ with ui.sidebar(title=ui.h2("Global Controls"), width="400px"):
     ui.input_select("xaxis", "X-axis (all plots)", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_length_mm")
     ui.input_select("plot", "Plot Type", ["Scatterplot", "Histogram"])
     ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
-
+    ui.input_select("hue_control", "Hue Control", ["sex", "species", "island"], selected="species")
     ui.h4("Filter Controls")
     ui.input_switch("filter", "Filter Data", True)
     ui.input_slider("mass", "Mass", 2000, 6000, [2000,6000])
@@ -91,7 +91,7 @@ with ui.layout_columns():
                         data=filtered_df(),
                         x=input.xaxis(),
                         y=input.yaxis(),
-                        hue="species",
+                        hue=input.hue_control(),
                     )
                 else:
                     return sns.scatterplot(
@@ -105,7 +105,7 @@ with ui.layout_columns():
                         data=filtered_df(),
                         x=input.xaxis(),
                         bins=input.bins(),
-                        hue="species",
+                        hue=input.hue_control(),
                         multiple="stack",
                     )
                 else:
@@ -126,7 +126,7 @@ with ui.layout_columns():
                     filtered_df(),
                     x=input.xaxis(),
                     y=input.yaxis(),
-                    color="species",
+                    color=input.hue_control(),
                     title="Scatterplot of Penguin Data"
                     )
                 else:
@@ -141,7 +141,7 @@ with ui.layout_columns():
                     fig = px.histogram(
                     filtered_df(),
                     x=input.xaxis(),
-                    color="species",
+                    color=input.hue_control(),
                     marginal="box",
                     title="Histogram of Penguin Data",
                     nbins=input.plotly_bins()
