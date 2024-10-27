@@ -17,7 +17,7 @@ with ui.sidebar(title=ui.h2("Seaborn Controls")):
     ui.input_select("xaxis", "X-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_length_mm")
     ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
     ui.input_slider("bins", "Number of bins", 5, 50, 20)
-    ui.input_slider("mass", "Mass", 2000, 6000, 6000)
+    ui.input_slider("mass", "Mass", 2000, 6000, [2000,6000])
 
     ui.h3("Plotly Controls")
     ui.input_numeric("plotly_bins", "Number of bins", 20, min=5, max=50)
@@ -137,5 +137,5 @@ def filtered_df():
     filt_df = df[df["species"].isin(input.species())]
     filt_df = filt_df[filt_df["sex"].isin(input.sex())]
     filt_df = filt_df[filt_df["island"].isin(input.island())]
-    filt_df = filt_df.loc[filt_df["body_mass_g"] <= input.mass()]
+    filt_df = filt_df.loc[(filt_df["body_mass_g"] >= input.mass()[0]) & (filt_df["body_mass_g"] <= input.mass()[1])]
     return filt_df
