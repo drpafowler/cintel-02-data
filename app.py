@@ -13,6 +13,9 @@ ui.page_opts(title=ui.h1("Philip's Penguins", style="text-align: center;"), fill
 
 with ui.sidebar(title=ui.h2("Global Controls"), width="400px"):
     ui.input_select("xaxis", "X-axis (all plots)", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_length_mm")
+    ui.input_select("plot", "Plot Type", ["Scatterplot", "Histogram"])
+    ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
+
     ui.h4("Filter Controls")
     ui.input_switch("filter", "Filter Data", True)
     ui.input_slider("mass", "Mass", 2000, 6000, [2000,6000])
@@ -36,8 +39,7 @@ with ui.sidebar(title=ui.h2("Global Controls"), width="400px"):
     )   
     ui.hr()
     ui.h4("Seaborn Controls")
-    ui.input_select("plot", "Plot Type", ["Scatterplot", "Histogram"])
-    ui.input_select("yaxis", "Scatterplot Y-axis", ["bill_length_mm", "bill_depth_mm", "body_mass_g"], selected="bill_depth_mm")
+
     ui.input_slider("bins", "Number of bins", 5, 50, 20)
 
     ui.hr()
@@ -114,6 +116,50 @@ with ui.layout_columns():
                     )
 
     with ui.card(full_screen=True):
+        ui.card_header("Plotly Penguin Data Visualisation")
+
+        @render_widget
+        def plotly_plot():
+            if input.plot() == "Scatterplot":
+                if input.filter():
+                    fig = px.scatter(
+                    filtered_df(),
+                    x=input.xaxis(),
+                    y=input.yaxis(),
+                    color="species",
+                    title="Scatterplot of Penguin Data"
+                    )
+                else:
+                    fig = px.scatter(
+                    filtered_df(),
+                    x=input.xaxis(),
+                    y=input.yaxis(),
+                    title="Scatterplot of Penguin Data"
+                    )
+            elif input.plot() == "Histogram":
+                if input.filter():
+                    fig = px.histogram(
+                    filtered_df(),
+                    x=input.xaxis(),
+                    color="species",
+                    marginal="box",
+                    title="Histogram of Penguin Data",
+                    nbins=input.plotly_bins()
+                    )
+                else:
+                    fig = px.histogram(
+                    filtered_df(),
+                    x=input.xaxis(),
+                    marginal="box",
+                    title="Histogram of Penguin Data",
+                    nbins=input.plotly_bins()
+                    )
+            return fig
+
+
+with ui.layout_columns():
+
+    with ui.card(full_screen=True):
         ui.card_header("Penguin data")
         ui.input_switch("show_table", "Switch on to show a data table", False)
         @render.data_frame
@@ -130,32 +176,6 @@ with ui.layout_columns():
                 return render.DataTable(filtered_df()[cols], filters=True)
             else:
                 return render.DataGrid(filtered_df()[cols], filters=True)
-
-with ui.layout_columns():
-    with ui.card(full_screen=True):
-        ui.card_header("Plotly Penguin Data Visualisation")
-
-        @render_widget
-        def plotly_plot():
-            if input.filter():
-                fig = px.histogram(
-                    filtered_df(),
-                    x=input.xaxis(),
-                    color="species",
-                    marginal="box",
-                    title="Histogram of Penguin Data",
-                    nbins=input.plotly_bins()
-                )
-            else:
-                fig = px.histogram(
-                    filtered_df(),
-                    x=input.xaxis(),
-                    marginal="box",
-                    title="Histogram of Penguin Data",
-                    nbins=input.plotly_bins()
-                )
-            return fig
-
         
 
 ui.include_css(app_dir / "styles.css")
